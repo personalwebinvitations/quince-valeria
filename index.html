@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>${escape(c.celebrants)} | ${escape(c.title)}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Great+Vibes&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-target-date="${c.eventDate}">
+  ${c.enableMusic && c.musicUrl ? `
+  <div class="audio-control" id="audioControl">
+    <audio id="bgAudio" loop preload="auto"><source src="${c.musicUrl}" type="audio/mp3"></audio>
+    <button id="musicToggleBtn"><i class="fa-solid fa-music" id="musicIcon"></i></button>
+  </div>` : ''}
+
+  <header class="hero">
+    <div class="hero-overlay"></div>
+    <div class="hero-content" data-aos="zoom-in" data-aos-duration="1200">
+      <p class="hero-subtitle">${escape(c.title.toUpperCase())}</p>
+      <h1 class="hero-title">${escape(c.celebrants)}</h1>
+      <div class="hero-divider"><span>❦</span></div>
+      <p class="hero-date">${escape(c.displayDate)}</p>
+      <a href="#rsvp" class="btn-primary hero-btn"><i class="fa-regular fa-envelope"></i> Confirmar Asistencia</a>
+    </div>
+  </header>
+
+  <section class="section welcome-section">
+    <div class="container">
+      <div class="welcome-box" data-aos="fade-up">
+        <p class="welcome-quote">"${escape(c.customMessage)}"</p>
+        <p class="welcome-authors">- ${escape(c.celebrants)} -</p>
+        ${c.parents || c.godparents ? `
+        <div class="family-section">
+          ${c.parents ? `<div class="family-col"><h4>Con la bendición de nuestros padres</h4><p>${escape(c.parents).replace(/\n/g, '<br>')}</p></div>` : ''}
+          ${c.godparents ? `<div class="family-col"><h4>Y nuestros padrinos</h4><p>${escape(c.godparents).replace(/\n/g, '<br>')}</p></div>` : ''}
+        </div>` : ''}
+      </div>
+    </div>
+  </section>
+
+  <section class="section countdown-section">
+    <div class="container text-center" data-aos="fade-up">
+      <h2 class="section-title">FALTAN SOLO</h2>
+      <div class="countdown-grid" id="countdownGrid">
+        <div class="countdown-card"><span class="countdown-num" id="days">00</span><span class="countdown-label">Días</span></div>
+        <div class="countdown-card"><span class="countdown-num" id="hours">00</span><span class="countdown-label">Horas</span></div>
+        <div class="countdown-card"><span class="countdown-num" id="minutes">00</span><span class="countdown-label">Min</span></div>
+        <div class="countdown-card"><span class="countdown-num" id="seconds">00</span><span class="countdown-label">Seg</span></div>
+      </div>
+    </div>
+  </section>
+
+  ${c.showLocations ? `
+  <section class="section locations-section">
+    <div class="container">
+      <h2 class="section-title text-center" data-aos="fade-up">DÓNDE Y CUÁNDO</h2>
+      <div class="locations-grid">
+        <div class="location-card" data-aos="fade-right">
+          <div class="card-icon"><i class="fa-solid fa-church"></i></div>
+          <h3 class="card-title">Ceremonia</h3>
+          <p class="card-time"><i class="fa-regular fa-clock"></i> ${escape(c.ceremonyTime)}</p>
+          <p class="card-place"><strong>${escape(c.ceremonyPlace)}</strong></p>
+          <p class="card-address">${escape(c.ceremonyAddress)}</p>
+          <a href="${c.ceremonyMapUrl}" target="_blank" class="btn-outline"><i class="fa-solid fa-location-dot"></i> Ver en Google Maps</a>
+        </div>
+        <div class="location-card" data-aos="fade-left">
+          <div class="card-icon"><i class="fa-solid fa-champagne-glasses"></i></div>
+          <h3 class="card-title">Recepción y Fiesta</h3>
+          <p class="card-time"><i class="fa-regular fa-clock"></i> ${escape(c.receptionTime)}</p>
+          <p class="card-place"><strong>${escape(c.receptionPlace)}</strong></p>
+          <p class="card-address">${escape(c.receptionAddress)}</p>
+          <a href="${c.receptionMapUrl}" target="_blank" class="btn-outline"><i class="fa-solid fa-location-dot"></i> Ver en Google Maps</a>
+        </div>
+      </div>
+    </div>
+  </section>` : ''}
+
+  ${c.showItinerary && c.itineraryList.length > 0 ? `
+  <section class="section itinerary-section">
+    <div class="container">
+      <h2 class="section-title text-center" data-aos="fade-up">ITINERARIO</h2>
+      <div class="timeline" data-aos="fade-up">
+        ${c.itineraryList.map((item, idx) => `
+          <div class="timeline-item ${idx % 2 === 0 ? 'left' : 'right'}">
+            <div class="timeline-icon"><i class="fa-solid fa-star"></i></div>
+            <div class="timeline-content">
+              <span class="timeline-time">${escape(item.time)}</span>
+              <h4 class="timeline-title">${escape(item.title)}</h4>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  </section>` : ''}
+
+  ${c.showDressCode ? `
+  <section class="section dresscode-section">
+    <div class="container text-center">
+      <div class="dresscode-box" data-aos="zoom-in">
+        <div class="card-icon"><i class="fa-solid fa-user-tie"></i></div>
+        <h2 class="section-title">CÓDIGO DE VESTIMENTA</h2>
+        <p class="dresscode-type">${escape(c.dressCode)}</p>
+        ${c.dressCodeNotes ? `<p class="dresscode-notes">${escape(c.dressCodeNotes)}</p>` : ''}
+        ${c.adultsOnly ? `<div class="badge-alert"><i class="fa-solid fa-circle-info"></i> Evento solo para adultos (No niños)</div>` : ''}
+      </div>
+    </div>
+  </section>` : ''}
+
+  ${c.showGifts ? `
+  <section class="section gifts-section">
+    <div class="container text-center">
+      <h2 class="section-title" data-aos="fade-up">MESA DE REGALOS</h2>
+      <p class="section-subtitle">El mejor regalo es tu presencia, pero si deseas hacernos un detalle:</p>
+      <div class="gifts-grid">
+        ${c.bankClabe ? `
+        <div class="gift-card" data-aos="fade-up">
+          <i class="fa-solid fa-building-columns gift-icon"></i>
+          <h4>Transferencia / Depósito</h4>
+          <p><strong>Banco:</strong> ${escape(c.bankBank)}</p>
+          <p><strong>Titular:</strong> ${escape(c.bankHolder)}</p>
+          <div class="clabe-box">
+            <span id="clabeVal">${escape(c.bankClabe)}</span>
+            <button class="btn-copy" onclick="copyClabe()"><i class="fa-regular fa-copy"></i> Copiar CLABE</button>
+          </div>
+        </div>` : ''}
+        ${c.giftsType === 'sobres' || c.giftsType === 'mixto' ? `
+        <div class="gift-card" data-aos="fade-up">
+          <i class="fa-solid fa-envelope-open-text gift-icon"></i>
+          <h4>Lluvia de Sobres</h4>
+          <p>Habrá un buzón especial en la recepción para depositar tu sobre con cariño.</p>
+        </div>` : ''}
+      </div>
+    </div>
+  </section>` : ''}
+
+  <section class="section rsvp-section" id="rsvp">
+    <div class="container">
+      <div class="rsvp-card" data-aos="fade-up">
+        <div class="text-center">
+          <h2 class="section-title">CONFIRMAR ASISTENCIA</h2>
+          <p class="section-subtitle">Agradecemos confirmar tu asistencia para reservar tu lugar.</p>
+        </div>
+
+        <form id="rsvpForm" class="rsvp-form" data-webhook="${escape(c.googleSheetWebhookUrl)}">
+          <div class="form-group">
+            <label for="nombre">Nombre Completo *</label>
+            <input type="text" id="nombre" name="nombre" required placeholder="Tu Nombre o Familia">
+          </div>
+          <div class="form-group">
+            <label>¿Podrás acompañarnos? *</label>
+            <div class="radio-group">
+              <label class="radio-label"><input type="radio" name="asistencia" value="Sí" checked required> <span>¡Sí, asistiré con gusto! 🎉</span></label>
+              <label class="radio-label"><input type="radio" name="asistencia" value="No" required> <span>Lo siento, no podré asistir 😢</span></label>
+            </div>
+          </div>
+          <div class="form-row" id="passesRow">
+            <div class="form-group col">
+              <label for="adultos">Pases Adultos</label>
+              <select id="adultos" name="adultos">
+                <option value="1">1 adulto</option>
+                <option value="2" selected>2 adultos</option>
+                <option value="3">3 adultos</option>
+                <option value="4">4 adultos</option>
+              </select>
+            </div>
+            <div class="form-group col" ${c.adultsOnly ? 'style="display:none;"' : ''}>
+              <label for="ninos">Niños</label>
+              <select id="ninos" name="ninos">
+                <option value="0" selected>0 niños</option>
+                <option value="1">1 niño</option>
+                <option value="2">2 niños</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="telefono">Teléfono / WhatsApp</label>
+            <input type="tel" id="telefono" name="telefono" placeholder="Ej. +52 55 1234 5678">
+          </div>
+          <div class="form-group">
+            <label for="alergias">Restricciones de Menú / Alergias</label>
+            <input type="text" id="alergias" name="alergias" placeholder="Vegetariano, celíaco, etc.">
+          </div>
+          <div class="form-group">
+            <label for="mensaje">Dedicatoria para los anfitriones</label>
+            <textarea id="mensaje" name="mensaje" rows="3" placeholder="Escribe un mensaje con cariño..."></textarea>
+          </div>
+          <button type="submit" class="btn-primary btn-block" id="submitBtn">
+            <span class="btn-text">Confirmar mi Asistencia</span>
+            <span class="btn-loader" style="display:none;"><i class="fa-solid fa-spinner fa-spin"></i> Registrando...</span>
+          </button>
+        </form>
+
+        <div id="rsvpSuccess" class="rsvp-success" style="display:none;">
+          <div class="success-icon"><i class="fa-solid fa-circle-check"></i></div>
+          <h3>¡Confirmación Recibida!</h3>
+          <p id="successMsgText">Muchas gracias por confirmar. Tu respuesta ha quedado registrada en Google Sheets.</p>
+          <button class="btn-outline" onclick="location.reload()">Enviar otra respuesta</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container text-center">
+      <p class="footer-celebrants">${escape(c.celebrants)}</p>
+      <p class="footer-date">${escape(c.displayDate)}</p>
+      ${c.contactPhone ? `
+      <p class="footer-contact">
+        ¿Dudas? <a href="https://wa.me/${c.contactPhone.replace(/[^0-9]/g, '')}" target="_blank"><i class="fa-brands fa-whatsapp"></i> Escríbenos por WhatsApp</a>
+      </p>` : ''}
+      <p class="footer-credit">Invitación Digital Interactiva</p>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
